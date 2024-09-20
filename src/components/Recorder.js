@@ -1,40 +1,54 @@
 /* global webkitSpeechRecognition */
+// src/components/Recorder.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Card, Alert } from 'react-bootstrap';
+import './Recorder.css'; // Import CSS file
 
 const Recorder = () => {
     const [transcript, setTranscript] = useState('');
     const [translatedText, setTranslatedText] = useState('');
+    const [isRecording, setIsRecording] = useState(false);
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
 
-    let recognition;
+    useEffect(() => {
+        // Initialize the recognition object
+        recognition.continuous = true; // Keep recording continuously
+        recognition.interimResults = false; // Do not show interim results
+
+        recognition.onresult = (event) => {
+            const spokenText = Array.from(event.results)
+                .map(result => result[0].transcript)
+                .join(' ');
+            setTranscript(spokenText); // Update transcript with all results
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Error occurred in recognition: ', event.error);
+            stopRecording(); // Stop recording on error
+        };
+
+        recognition.onend = () => {
+            if (isRecording) {
+                setIsRecording(false); // Reset recording state when done
+            }
+        };
+
+        return () => {
+            recognition.stop(); // Clean up when component unmounts
+        };
+    }, [isRecording]);
 
     const startRecording = () => {
-        if ('webkitSpeechRecognition' in window) {
-            recognition = new webkitSpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
-            recognition.onresult = async (event) => {
-                const spokenText = event.results[0][0].transcript;
-                setTranscript(spokenText);
-                await translateText(spokenText);
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Error occurred in recognition: ', event.error);
-            };
-
-            recognition.start();
-        } else {
-            alert('Speech recognition not supported in this browser.');
-        }
+        setTranscript(''); // Clear previous transcript
+        recognition.start();
+        setIsRecording(true); // Set recording state to true
     };
 
-    const stopRecording = () => {
-        if (recognition) {
-            recognition.stop();
-        }
+    const stopRecording = async () => {
+        recognition.stop(); // Stop the recognition
+        setIsRecording(false); // Reset recording state
+        await translateText(transcript); // Translate the final transcript
     };
 
     const detectLanguage = async (text) => {
@@ -76,8 +90,13 @@ const Recorder = () => {
     return (
         <Card className="p-4 mt-4">
             <Card.Body>
-                <Button variant="primary" onClick={startRecording} className="me-2 mb-3">Start Recording</Button>
-                <Button variant="secondary" onClick={stopRecording} className="mb-3">Stop Recording</Button>
+                <Button 
+                    variant={isRecording ? "danger" : "primary"} 
+                    onClick={isRecording ? stopRecording : startRecording}
+                    className="me-2 mb-3" 
+                >
+                    {isRecording ? "Stop Recording" : "Start Recording"}
+                </Button>
 
                 <div className="text-box">
                     <strong>Spoken Text:</strong>
@@ -98,3 +117,5 @@ const Recorder = () => {
 };
 
 export default Recorder;
+
+

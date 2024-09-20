@@ -1,3 +1,4 @@
+
 body {
     background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
     font-family: 'Arial', sans-serif;
@@ -9,8 +10,16 @@ body {
 }
 
 h1 {
-    font-size: 2.5rem;
+    font-size: 3rem;
     margin-bottom: 1rem;
+    color: #007bff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+h1:hover {
+    color: #0056b3;
+    transform: translateY(-5px);
 }
 
 .card {
@@ -33,6 +42,7 @@ button {
     width: 150px;
     border-radius: 25px;
     font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .btn-primary {
@@ -40,9 +50,19 @@ button {
     border: none;
 }
 
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
 .btn-secondary {
     background-color: #6c757d;
     border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    transform: scale(1.05);
 }
 
 .alert {
