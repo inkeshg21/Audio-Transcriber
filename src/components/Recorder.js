@@ -1,6 +1,7 @@
 /* global webkitSpeechRecognition */
 
 import React, { useState } from 'react';
+import { Button, Card, Alert } from 'react-bootstrap';
 
 const Recorder = () => {
     const [transcript, setTranscript] = useState('');
@@ -17,7 +18,7 @@ const Recorder = () => {
             recognition.onresult = async (event) => {
                 const spokenText = event.results[0][0].transcript;
                 setTranscript(spokenText);
-                await translateText(spokenText); // Call translateText with detected language
+                await translateText(spokenText);
             };
 
             recognition.onerror = (event) => {
@@ -40,18 +41,17 @@ const Recorder = () => {
         try {
             const response = await fetch(`https://api.mymemory.translated.net/detect?q=${encodeURIComponent(text)}`);
             const data = await response.json();
-            return data.lang || 'en'; // Fallback to English if detection fails
+            return data.lang || 'en';
         } catch (error) {
             console.error('Error detecting language: ', error);
-            return 'en'; // Fallback to English
+            return 'en';
         }
     };
 
     const translateText = async (text) => {
-        const targetLanguage = 'en'; // Target language is English
-        const sourceLanguage = await detectLanguage(text); // Detect the spoken language
+        const targetLanguage = 'en';
+        const sourceLanguage = await detectLanguage(text);
 
-        // Make sure both source and target languages are valid
         if (sourceLanguage && targetLanguage) {
             try {
                 const response = await fetch(
@@ -74,12 +74,26 @@ const Recorder = () => {
     };
 
     return (
-        <div>
-            <button onClick={startRecording}>Start Recording</button>
-            <button onClick={stopRecording}>Stop Recording</button>
-            <p>Spoken Text: {transcript}</p>
-            <p>Translated Text: {translatedText}</p>
-        </div>
+        <Card className="p-4 mt-4">
+            <Card.Body>
+                <Button variant="primary" onClick={startRecording} className="me-2 mb-3">Start Recording</Button>
+                <Button variant="secondary" onClick={stopRecording} className="mb-3">Stop Recording</Button>
+
+                <div className="text-box">
+                    <strong>Spoken Text:</strong>
+                    <p>{transcript}</p>
+                </div>
+                
+                <div className="text-box">
+                    <strong>Translated Text:</strong>
+                    {translatedText ? (
+                        <Alert variant="success">{translatedText}</Alert>
+                    ) : (
+                        <Alert variant="info">Translation will appear here.</Alert>
+                    )}
+                </div>
+            </Card.Body>
+        </Card>
     );
 };
 

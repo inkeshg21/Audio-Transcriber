@@ -1,8 +1,7 @@
-// src/pages/Home.js
 
 import React from 'react';
 import Recorder from '../components/Recorder';
-import { Container, Row, Col } from 'react-bootstrap'; // Make sure this line is correct
+import { Container, Row, Col } from 'react-bootstrap';
 
 const Home = () => {
     return (
